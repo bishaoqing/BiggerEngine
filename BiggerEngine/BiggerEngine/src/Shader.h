@@ -3,6 +3,9 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 #include <string>
 #include <fstream>
@@ -144,17 +147,17 @@ public:
 	// ------------------------------------------------------------------------
 	void setMat2(const std::string &name, const glm::mat2 &mat) const
 	{
-		glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+		glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 	}
 	// ------------------------------------------------------------------------
 	void setMat3(const std::string &name, const glm::mat3 &mat) const
 	{
-		glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+		glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 	}
 	// ------------------------------------------------------------------------
 	void setMat4(const std::string &name, const glm::mat4 &mat) const
 	{
-		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 	}
 
 private:

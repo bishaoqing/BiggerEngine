@@ -8,6 +8,9 @@
 #include "Primitive.h"
 #include "Shader.h"
 #include "stb_image.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 US_BIGGER;
 
@@ -133,11 +136,17 @@ int main() {
 
 	stbi_image_free(data);
 
+
+	
+
+
+
 	// Create shader program
 	Shader shaderProgram("res/shader/vertex.vs", "res/shader/frag.fs");
 	shaderProgram.use();
 	shaderProgram.setInt("texture0", 0);
 	shaderProgram.setInt("texture1", 1);
+	
 
 	glBindVertexArray(0);
 
@@ -153,6 +162,10 @@ int main() {
 
 		shaderProgram.use();
 
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::rotate(trans, glm::radians((float)glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
+		shaderProgram.setMat4("transform", trans);
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture0);
 
@@ -163,6 +176,11 @@ int main() {
 
 		glBindVertexArray(vao);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+		trans = glm::mat4(1.0f);
+		shaderProgram.setMat4("transform", trans);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
