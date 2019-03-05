@@ -36,6 +36,9 @@
     <ClInclude Include="src\Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\Texture2D.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\stb_image.cpp">
@@ -60,10 +63,22 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shader\frag.fs">
+    <None Include="res\shader\uv.frag">
       <Filter>资源文件\shader</Filter>
     </None>
-    <None Include="res\shader\vertex.vs">
+    <None Include="res\shader\uv.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\light.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\light.frag">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\object.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\object.frag">
       <Filter>资源文件\shader</Filter>
     </None>
   </ItemGroup>

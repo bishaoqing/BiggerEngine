@@ -126,6 +126,7 @@
     <ClInclude Include="src\Primitive.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\Texture2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
@@ -138,8 +139,12 @@
     <Image Include="res\img\wall.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shader\frag.fs" />
-    <None Include="res\shader\vertex.vs" />
+    <None Include="res\shader\light.frag" />
+    <None Include="res\shader\light.vert" />
+    <None Include="res\shader\object.frag" />
+    <None Include="res\shader\object.vert" />
+    <None Include="res\shader\uv.frag" />
+    <None Include="res\shader\uv.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
