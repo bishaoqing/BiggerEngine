@@ -11,16 +11,30 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Camera.h"
 
 US_BIGGER;
+
+// settings
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 600;
+
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
 
 int main() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
 
-	auto window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
+	auto window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "BiggerEngine", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window!" << std::endl;
@@ -36,9 +50,29 @@ int main() {
 		return -1;
 	}
 
-	glViewport(0, 0, 800, 600);
-	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
-	
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) {SCR_WIDTH = width; SCR_HEIGHT = height; glViewport(0, 0, width, height); });
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
+	glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
+		if (firstMouse) {
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos;
+		lastX = xpos;
+		lastY = ypos;
+
+		camera.ProcessMouseMovement(xoffset, yoffset);
+	});
+	glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
+		camera.ProcessMouseScroll(yoffset);
+	});
+
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
@@ -204,25 +238,39 @@ int main() {
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 	
-
-	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-	shaderProgram.setMat4("view", view);
-
-	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-	shaderProgram.setMat4("projection", projection);
+	
 
 	glBindVertexArray(0);
 
+	float deltaTime = 0.0f;
+	float lastTime = 0.0f;
+
 	while (!glfwWindowShouldClose(window))
 	{
+		float cameraSpeed = 2.0f * deltaTime;
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{
 			glfwSetWindowShouldClose(window, true);
 		}
-
+		else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			camera.ProcessKeyboard(FORWARD, deltaTime);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) 
+		{
+			camera.ProcessKeyboard(BACKWARD, deltaTime);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) 
+		{
+			camera.ProcessKeyboard(LEFT, deltaTime);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) 			
+		{
+			camera.ProcessKeyboard(RIGHT, deltaTime);
+		}
+	
 		
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindVertexArray(vao);
@@ -234,12 +282,18 @@ int main() {
 
 		shaderProgram.use();
 
-		
+		glm::mat4 view = camera.GetViewMatrix();
+		shaderProgram.setMat4("view", view);
+
+		glm::mat4 projection = glm::mat4(1.0f);
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+		shaderProgram.setMat4("projection", projection);
+
 		for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, (float)glfwGetTime() + i * 2, glm::vec3(0.5f, 1.0f, 0.0f));
+			//model = glm::rotate(model, (float)glfwGetTime() + i * 2, glm::vec3(0.5f, 1.0f, 0.0f));
 			shaderProgram.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -250,6 +304,10 @@ int main() {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		float currentTime = glfwGetTime();
+		deltaTime = currentTime - lastTime;
+		lastTime = currentTime;
 	}
 	
 	glfwTerminate();
