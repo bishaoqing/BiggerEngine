@@ -4,7 +4,7 @@
 class Texture2D
 {
 public:
-	Texture2D(char const * filename, const int mode = GL_RGB) {
+	Texture2D(char const * filename, const int mode = GL_RGB, bool flipVertically = false) {
 		glGenTextures(1, &m_iTextureID);
 		glBindTexture(GL_TEXTURE_2D, m_iTextureID);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -12,6 +12,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+		stbi_set_flip_vertically_on_load(flipVertically);
 		unsigned char* data = stbi_load(filename, &m_iWidth, &m_iHeight, &m_iChannels, 0);
 		if (data) {
 			glTexImage2D(GL_TEXTURE_2D, 0, mode, m_iWidth, m_iHeight, 0, mode, GL_UNSIGNED_BYTE, data);
@@ -26,6 +27,10 @@ public:
 	void Use(int textureSlot = GL_TEXTURE0) {
 		glActiveTexture(textureSlot);
 		glBindTexture(GL_TEXTURE_2D, m_iTextureID);
+	}
+
+	static void Clear() {
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 protected:
 private:

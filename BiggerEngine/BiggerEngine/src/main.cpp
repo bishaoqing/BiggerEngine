@@ -19,7 +19,7 @@ US_BIGGER;
 GLFWwindow* createWindow();
 void initOpenGL();
 unsigned int createVAO();
-unsigned int createVBO();
+unsigned int createVBO(const float data[], const int size);
 Shader createShader(const char *vertPath, const char *fragPath);
 void processKeyBoard(GLFWwindow* window, float deltaTime);
 void onSetFrameBuffer(GLFWwindow* window, int width, int height);
@@ -43,7 +43,6 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
-glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 glm::vec3 lightPos(0.8f, 0.0f, 1.0f);
 
 float vertices[] = {
@@ -90,6 +89,50 @@ float vertices[] = {
 	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 };
 
+float lightVertices[] = {
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
 
 
 int main() {
@@ -103,7 +146,7 @@ int main() {
 
 	// Create cube vao
 	unsigned int vao = createVAO();
-	unsigned int vbo = createVBO();
+	unsigned int vbo = createVBO(vertices, sizeof(vertices));
 
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -119,12 +162,15 @@ int main() {
 
 	// Create light vao
 	unsigned int lightVAO = createVAO();
+	unsigned int lightVBO = createVBO(lightVertices, sizeof(lightVertices));
 	glBindVertexArray(lightVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
 
 	// VBO only save the data of vertices, without any attribute of vertex !
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -133,12 +179,28 @@ int main() {
 
 	Shader shader = createShader("res/shader/object.vert", "res/shader/object.frag");
 	shader.Use();
-	shader.SetVec3("lightColor", lightColor);
-	shader.SetVec3("objectColor", glm::vec3(0.8f, 0.6f, 1.0f));
+	shader.SetVec3("lightPos", lightPos);
+
+	shader.SetVec3("light.position", camera.m_vec3Position);
+	shader.SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+	shader.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+	shader.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+	shader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+	shader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+	shader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+	shader.SetFloat("material.shininess", 32.0f);
+
 
 	Shader lightshader = createShader("res/shader/light.vert", "res/shader/light.frag");
 	lightshader.Use();
-	shader.SetVec3("lightColor", lightColor);
+	lightshader.SetInt("sampler0", 0);
+
+	Texture2D lightTexture2D("res/img/light.jpg", GL_RGB, true);
+	lightTexture2D.Use();
+
+	Texture2D::Clear();
+
 
 	float deltaTime = 0.0f;
 	float lastTime = 0.0f;
@@ -150,8 +212,11 @@ int main() {
 		
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Texture2D::Clear();
 
 		drawObject(vao, shader);
+
+		lightTexture2D.Use();
 		drawLight(lightVAO, lightshader);
 
 		glfwSwapBuffers(window);
@@ -218,12 +283,12 @@ unsigned int createVAO() {
 	return vao;
 }
 
-unsigned int createVBO() {
+unsigned int createVBO(const float data[], const int size) {
 	// Create vbo and bind vertex data
 	unsigned int vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 
 	
 
@@ -255,8 +320,7 @@ void setupObjectMVP(Shader shader) {
 
 	glm::mat4 model = glm::mat4(1.0f);
 	shader.SetMat4("model", model);
-	shader.SetVec3("lightPos", lightPos);
-	shader.SetVec3("viewPos", camera.m_vec3Position);
+	
 }
 
 void setupLightMVP(Shader shader) {
@@ -323,6 +387,8 @@ void onSetScroll(GLFWwindow* window, double xoffset, double yoffset) {
 void drawObject(unsigned int vao, Shader shader) {
 	glBindVertexArray(vao);
 	shader.Use();
+	
+
 	setupObjectMVP(shader);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
