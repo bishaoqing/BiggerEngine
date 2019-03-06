@@ -136,6 +136,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\img\awesomeface.png" />
+    <Image Include="res\img\container2.png" />
+    <Image Include="res\img\container2_specular.png" />
     <Image Include="res\img\light.jpg" />
     <Image Include="res\img\wall.jpg" />
   </ItemGroup>
