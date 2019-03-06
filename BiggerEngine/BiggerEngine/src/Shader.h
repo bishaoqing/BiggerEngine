@@ -120,7 +120,7 @@ public:
 	// ------------------------------------------------------------------------
 	void SetVec2(const std::string &name, const glm::vec2 &value) const
 	{
-		glUniform2fv(glGetUniformLocation(m_iProgramID, name.c_str()), 1, &value[0]);
+		glUniform2fv(glGetUniformLocation(m_iProgramID, name.c_str()), 1, glm::value_ptr(value));
 	}
 	void setVec2(const std::string &name, float x, float y) const
 	{
@@ -129,7 +129,7 @@ public:
 	// ------------------------------------------------------------------------
 	void SetVec3(const std::string &name, const glm::vec3 &value) const
 	{
-		glUniform3fv(glGetUniformLocation(m_iProgramID, name.c_str()), 1, &value[0]);
+		glUniform3fv(glGetUniformLocation(m_iProgramID, name.c_str()), 1, glm::value_ptr(value));
 	}
 	void SetVec3(const std::string &name, float x, float y, float z) const
 	{
@@ -138,7 +138,7 @@ public:
 	// ------------------------------------------------------------------------
 	void SetVec4(const std::string &name, const glm::vec4 &value) const
 	{
-		glUniform4fv(glGetUniformLocation(m_iProgramID, name.c_str()), 1, &value[0]);
+		glUniform4fv(glGetUniformLocation(m_iProgramID, name.c_str()), 1, glm::value_ptr(value));
 	}
 	void SetVec4(const std::string &name, float x, float y, float z, float w)
 	{
