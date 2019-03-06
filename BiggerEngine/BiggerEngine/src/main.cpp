@@ -43,7 +43,7 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
-glm::vec3 lightPos(0.8f, 0.0f, 1.0f);
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 float vertices[] = {
 	// positions          // normals           // texture coords
