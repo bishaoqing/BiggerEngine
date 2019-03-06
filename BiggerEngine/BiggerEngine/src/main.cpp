@@ -27,6 +27,12 @@ void onSetCursorPos(GLFWwindow* window, double xpos, double ypos);
 void onSetScroll(GLFWwindow* window, double xoffset, double yoffset);
 void setupObjectMVP(Shader shader);
 void setupLightMVP(Shader shader);
+void drawObject(unsigned int vao, Shader shader);
+void drawLight(unsigned int vao, Shader shader);
+
+
+
+
 // settings
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
@@ -36,6 +42,8 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+
+glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
 float vertices[] = {
 -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -94,28 +102,42 @@ int main() {
 
 	// Create cube vao
 	unsigned int vao = createVAO();
-	glBindVertexArray(vao);
 	unsigned int vbo = createVBO();
+
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	// VBO only save the data of vertices, without any attribute of vertex !
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
-	// Create ligh vao
+	// Create light vao
 	unsigned int lightVAO = createVAO();
 	glBindVertexArray(lightVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	// VBO only save the data of vertices, without any attribute of vertex !
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glBindVertexArray(0);
 
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	
 
 	Shader shader = createShader("res/shader/object.vert", "res/shader/object.frag");
 	shader.Use();
-	shader.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-	shader.SetVec3("objectColor", glm::vec3(0.0f, 0.5f, 0.0f));
+	shader.SetVec3("lightColor", lightColor);
+	shader.SetVec3("objectColor", glm::vec3(0.8f, 0.6f, 1.0f));
 
 	Shader lightshader = createShader("res/shader/light.vert", "res/shader/light.frag");
 	lightshader.Use();
-
+	shader.SetVec3("lightColor", lightColor);
 
 	float deltaTime = 0.0f;
 	float lastTime = 0.0f;
@@ -128,18 +150,8 @@ int main() {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-		glBindVertexArray(vao);
-		shader.Use();
-		setupObjectMVP(shader);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		glBindVertexArray(lightVAO);
-		lightshader.Use();
-		setupLightMVP(lightshader);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		glBindVertexArray(0);
+		drawObject(vao, shader);
+		drawLight(lightVAO, lightshader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -212,13 +224,9 @@ unsigned int createVBO() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Assign the format of vertices
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	return vbo;
 }
 
@@ -306,4 +314,20 @@ void onSetCursorPos(GLFWwindow* window, double xpos, double ypos) {
 
 void onSetScroll(GLFWwindow* window, double xoffset, double yoffset) {
 	camera.ProcessMouseScroll(yoffset);
+}
+
+void drawObject(unsigned int vao, Shader shader) {
+	glBindVertexArray(vao);
+	shader.Use();
+	setupObjectMVP(shader);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+void drawLight(unsigned int vao, Shader shader) {
+	glBindVertexArray(vao);
+	shader.Use();
+	setupLightMVP(shader);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }
