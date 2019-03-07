@@ -138,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\img\awesomeface.png" />
+    <Image Include="res\img\container.jpg" />
     <Image Include="res\img\container2.png" />
     <Image Include="res\img\container2_specular.png" />
     <Image Include="res\img\light.jpg" />
@@ -169,6 +170,8 @@
     <None Include="res\shader\model.vert" />
     <None Include="res\shader\object.frag" />
     <None Include="res\shader\object.vert" />
+    <None Include="res\shader\simple.frag" />
+    <None Include="res\shader\simple.vert" />
     <None Include="res\shader\uv.frag" />
     <None Include="res\shader\uv.vert" />
   </ItemGroup>

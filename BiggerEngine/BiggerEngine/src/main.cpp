@@ -36,6 +36,8 @@ void setupVP(Shader shader);
 // settings
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
+float deltaTime = 0.0f;
+float lastTime = 0.0f;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -147,6 +149,16 @@ float lightVertices[] = {
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
+float rectVertices[] = {
+		 0.5f,  0.5f, 0.0f,  1.0f, 1.0f,   // 右上
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f,   // 右下
+		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f,   // 左下
+		-0.5f,  0.5f, 0.0f,  0.0f, 1.0f    // 左上
+};
+unsigned int indices[] = {
+	0, 1, 3, // first triangle
+	1, 2, 3  // second triangle
+};
 
 
 int main() {
@@ -158,9 +170,7 @@ int main() {
 	initOpenGL();
 
 
-	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
 
-	Shader ourShader("res/shader/model.vert", "res/shader/model.frag");
 
 // 	//Create cube vao
 // 	unsigned int vao = createVAO();
@@ -245,9 +255,148 @@ int main() {
 // 	lightTexture2D.Use();
 // 	Texture2D::Clear();
 
+	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
 
-	float deltaTime = 0.0f;
-	float lastTime = 0.0f;
+	Shader ourShader("res/shader/model.vert", "res/shader/model.frag");
+
+
+// 	float cubeVertices[] = {
+// 		// positions          // texture Coords
+// 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+// 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+// 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+// 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+// 
+// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+// 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+// 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+// 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+// 		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+// 
+// 		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+// 		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+// 		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+// 
+// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+// 		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+// 		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+// 		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+// 
+// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+// 		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+// 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+// 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+// 
+// 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+// 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+// 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+// 	};
+// 
+// 	// cube VAO
+// 	unsigned int cubeVAO, cubeVBO;
+// 	glGenVertexArrays(1, &cubeVAO);
+// 	glGenBuffers(1, &cubeVBO);
+// 	glBindVertexArray(cubeVAO);
+// 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+// 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+// 	glEnableVertexAttribArray(0);
+// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+// 	glEnableVertexAttribArray(1);
+// 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+// 	glBindVertexArray(0);
+// 
+// 
+// 	unsigned int cubeTexture;
+// 	glGenTextures(1, &cubeTexture);
+// 	glBindTexture(GL_TEXTURE_2D, cubeTexture);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+// 	int width, height, channels;
+// 	unsigned char* data = stbi_load("res/img/container.jpg", &width, &height, &channels, 0);
+// 	if (data) {
+// 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+// 		glGenerateMipmap(GL_TEXTURE_2D);
+// 	}
+// 	else {
+// 		std::cout << "Load image error:" << std::endl;
+// 	}
+// 	stbi_image_free(data);
+// 	
+// 	Shader cubeShader("res/shader/simple.vert", "res/shader/simple.frag");
+// 	cubeShader.Use();
+// 	cubeShader.SetInt("screenTexture", 0);
+	
+
+	
+
+	// cube VAO
+	unsigned int rectVAO, rectVBO, rectEBO;
+	glGenVertexArrays(1, &rectVAO);
+	glGenBuffers(1, &rectVBO);
+	glGenBuffers(1, &rectEBO);
+	glBindVertexArray(rectVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rectVertices), &rectVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+	glBindVertexArray(0);
+
+
+	Shader rectShader("res/shader/simple.vert", "res/shader/simple.frag");
+	rectShader.Use();
+	rectShader.SetInt("screenTexture", 0);
+
+	unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	// 生成纹理
+	unsigned int texColorBuffer;
+	glGenTextures(1, &texColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// 将它附加到当前绑定的帧缓冲对象
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+
+
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -255,7 +404,7 @@ int main() {
 		processKeyBoard(window, deltaTime);
 		
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 // 		Texture2D::Clear();
 // 
 // 		diffuseTexture.Use(GL_TEXTURE0);
@@ -274,6 +423,13 @@ int main() {
 // 		drawLight(lightVAO, lightshader);
 
 
+
+
+
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+
 		// don't forget to enable shader before setting uniforms
 		ourShader.Use();
 
@@ -288,6 +444,20 @@ int main() {
 
 		ourModel.Draw(ourShader);
 
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT );
+
+		
+		
+		rectShader.Use();
+
+		glBindVertexArray(rectVAO);
+		glDisable(GL_DEPTH_TEST);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -339,6 +509,8 @@ void initOpenGL() {
 	glEnable(GL_DEPTH_TEST);
 	// PolygonMode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glEnable(GL_CULL_FACE);
+
 }
 
 unsigned int createVAO() {

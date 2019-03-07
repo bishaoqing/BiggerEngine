@@ -130,6 +130,9 @@
     <Image Include="res\mesh\nanosuit\leg_showroom_spec.png">
       <Filter>资源文件\mesh</Filter>
     </Image>
+    <Image Include="res\img\container.jpg">
+      <Filter>资源文件\img</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shader\uv.frag">
@@ -161,6 +164,12 @@
     </None>
     <None Include="res\mesh\nanosuit\nanosuit.mtl">
       <Filter>资源文件\mesh</Filter>
+    </None>
+    <None Include="res\shader\simple.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\simple.frag">
+      <Filter>资源文件\shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
