@@ -90,6 +90,19 @@ float vertices[] = {
 	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 };
 
+glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 float lightVertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -182,16 +195,34 @@ int main() {
 
 	Shader shader = createShader("res/shader/object.vert", "res/shader/object.frag");
 	shader.Use();
-	shader.SetVec3("lightPos", lightPos);
 
-	shader.SetVec3("light.position", camera.m_vec3Position);
-	shader.SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-	shader.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-	shader.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+	shader.SetVec3("viewPos", camera.m_vec3Position);
+
+	shader.SetVec3("directLight.direction", -0.2f, -1.0f, -0.3f);
+	shader.SetVec3("directLight.ambient", 0.8f, 0.2f, 0.2f);
+	shader.SetVec3("directLight.diffuse", 0.8f, 0.5f, 0.5f);
+	shader.SetVec3("directLight.specular", 1.0f, 1.0f, 1.0f);
+
+	shader.SetVec3("spotLight.position", camera.m_vec3Position);
+	shader.SetVec3("spotLight.direction", camera.m_vec3Front);
+	shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+	shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+
+	shader.SetVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
+	shader.SetVec3("spotLight.diffuse", 0.8f, 0.8f, 0.8f);
+	shader.SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+
+	shader.SetVec3("pointLight.position", lightPos);
+	shader.SetVec3("pointLight.ambient", 0.2f, 0.2f, 0.8f);
+	shader.SetVec3("pointLight.diffuse", 0.5f, 0.5f, 0.8f);
+	shader.SetVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
+	shader.SetFloat("pointLight.constant", 1.0f);
+	shader.SetFloat("pointLight.linear", 0.09f);
+	shader.SetFloat("pointLight.quadratic", 0.032f);
 
 	//shader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
 	//shader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-	shader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+	//shader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
 	shader.SetFloat("material.shininess", 32.0f);
 
 	Texture2D diffuseTexture("res/img/container2.png", GL_RGBA);
@@ -227,7 +258,15 @@ int main() {
 
 		diffuseTexture.Use(GL_TEXTURE0);
 		specularTexture.Use(GL_TEXTURE1);
-		drawObject(vao, shader);
+
+		for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++)
+		{
+			drawObject(vao, shader);
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			shader.SetMat4("model", model);
+		}
+		
 
 		lightTexture2D.Use(GL_TEXTURE0);
 		drawLight(lightVAO, lightshader);
@@ -331,8 +370,7 @@ void setupObjectMVP(Shader shader) {
 
 	setupVP(shader);
 
-	glm::mat4 model = glm::mat4(1.0f);
-	shader.SetMat4("model", model);
+	
 	
 }
 
@@ -401,6 +439,8 @@ void drawObject(unsigned int vao, Shader shader) {
 	glBindVertexArray(vao);
 	shader.Use();
 	
+	shader.SetVec3("spotLight.position", camera.m_vec3Position);
+	shader.SetVec3("spotLight.direction", camera.m_vec3Front);
 
 	setupObjectMVP(shader);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
