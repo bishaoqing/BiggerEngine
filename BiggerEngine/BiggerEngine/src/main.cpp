@@ -13,8 +13,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
 #include "Texture2D.h"
+#include "Model.h"
 
-US_BIGGER;
 
 GLFWwindow* createWindow();
 void initOpenGL();
@@ -158,6 +158,10 @@ int main() {
 	initOpenGL();
 
 
+	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
+
+	Shader ourShader("res/shader/model.vert", "res/shader/model.frag");
+
 	// Create cube vao
 	unsigned int vao = createVAO();
 	unsigned int vbo = createVBO(vertices, sizeof(vertices));
@@ -270,6 +274,24 @@ int main() {
 
 		lightTexture2D.Use(GL_TEXTURE0);
 		drawLight(lightVAO, lightshader);
+
+
+		// don't forget to enable shader before setting uniforms
+		ourShader.Use();
+
+		// view/projection transformations
+		glm::mat4 projection = glm::perspective(glm::radians(camera.m_fZoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		ourShader.SetMat4("projection", projection);
+		ourShader.SetMat4("view", view);
+
+		// render the loaded model
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+		ourShader.SetMat4("model", model);
+		ourModel.Draw(ourShader);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

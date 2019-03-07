@@ -81,7 +81,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -122,7 +122,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Miscro.h" />
+    <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Primitive.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\stb_image.h" />
@@ -140,14 +142,43 @@
     <Image Include="res\img\container2_specular.png" />
     <Image Include="res\img\light.jpg" />
     <Image Include="res\img\wall.jpg" />
+    <Image Include="res\mesh\nanosuit\arm_dif.png" />
+    <Image Include="res\mesh\nanosuit\arm_showroom_ddn.png" />
+    <Image Include="res\mesh\nanosuit\arm_showroom_spec.png" />
+    <Image Include="res\mesh\nanosuit\body_dif.png" />
+    <Image Include="res\mesh\nanosuit\body_showroom_ddn.png" />
+    <Image Include="res\mesh\nanosuit\body_showroom_spec.png" />
+    <Image Include="res\mesh\nanosuit\glass_ddn.png" />
+    <Image Include="res\mesh\nanosuit\glass_dif.png" />
+    <Image Include="res\mesh\nanosuit\hand_dif.png" />
+    <Image Include="res\mesh\nanosuit\hand_showroom_ddn.png" />
+    <Image Include="res\mesh\nanosuit\hand_showroom_spec.png" />
+    <Image Include="res\mesh\nanosuit\helmet_diff.png" />
+    <Image Include="res\mesh\nanosuit\helmet_showroom_ddn.png" />
+    <Image Include="res\mesh\nanosuit\helmet_showroom_spec.png" />
+    <Image Include="res\mesh\nanosuit\leg_dif.png" />
+    <Image Include="res\mesh\nanosuit\leg_showroom_ddn.png" />
+    <Image Include="res\mesh\nanosuit\leg_showroom_spec.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\mesh\nanosuit\nanosuit.blend" />
+    <None Include="res\mesh\nanosuit\nanosuit.mtl" />
     <None Include="res\shader\light.frag" />
     <None Include="res\shader\light.vert" />
+    <None Include="res\shader\model.frag" />
+    <None Include="res\shader\model.vert" />
     <None Include="res\shader\object.frag" />
     <None Include="res\shader\object.vert" />
     <None Include="res\shader\uv.frag" />
     <None Include="res\shader\uv.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\mesh\nanosuit\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="res\mesh\nanosuit\nanosuit.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

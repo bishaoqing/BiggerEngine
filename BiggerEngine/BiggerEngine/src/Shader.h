@@ -11,7 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-NS_BIGGER_BEGIN
+
 
 class Shader {
 public:
@@ -184,5 +184,4 @@ private:
 	}
 };
 
-NS_BIGGER_END
 #endif
