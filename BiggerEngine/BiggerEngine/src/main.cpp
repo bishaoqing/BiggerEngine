@@ -29,7 +29,7 @@ void setupObjectMVP(Shader shader);
 void setupLightMVP(Shader shader);
 void drawObject(unsigned int vao, Shader shader);
 void drawLight(unsigned int vao, Shader shader);
-
+void setupVP(Shader shader);
 
 
 
@@ -162,90 +162,88 @@ int main() {
 
 	Shader ourShader("res/shader/model.vert", "res/shader/model.frag");
 
-	// Create cube vao
-	unsigned int vao = createVAO();
-	unsigned int vbo = createVBO(vertices, sizeof(vertices));
-
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	// VBO only save the data of vertices, without any attribute of vertex !
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Create light vao
-	unsigned int lightVAO = createVAO();
-	unsigned int lightVBO = createVBO(lightVertices, sizeof(lightVertices));
-	glBindVertexArray(lightVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
-
-	// VBO only save the data of vertices, without any attribute of vertex !
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+// 	//Create cube vao
+// 	unsigned int vao = createVAO();
+// 	unsigned int vbo = createVBO(vertices, sizeof(vertices));
+// 	
+// 	glBindVertexArray(vao);
+// 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+// 	
+// 	// VBO only save the data of vertices, without any attribute of vertex !
+// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+// 	glEnableVertexAttribArray(0);
+// 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+// 	glEnableVertexAttribArray(1);
+// 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+// 	glEnableVertexAttribArray(2);
+// 	
+// 	glBindVertexArray(0);
+// 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+// 	// Create light vao
+// 	unsigned int lightVAO = createVAO();
+// 	unsigned int lightVBO = createVBO(lightVertices, sizeof(lightVertices));
+// 	glBindVertexArray(lightVAO);
+// 	glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+// 	
+// 	// VBO only save the data of vertices, without any attribute of vertex !
+// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+// 	glEnableVertexAttribArray(0);
+// 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+// 	glEnableVertexAttribArray(1);
+// 	
+// 	glBindVertexArray(0);
+// 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	
 
-	Shader shader = createShader("res/shader/object.vert", "res/shader/object.frag");
-	shader.Use();
+// 	Shader shader = createShader("res/shader/object.vert", "res/shader/object.frag");
+// 	shader.Use();
+// 
+// 	shader.SetVec3("viewPos", camera.m_vec3Position);
+// 
+// 	shader.SetVec3("directLight.direction", -0.2f, -1.0f, -0.3f);
+// 	shader.SetVec3("directLight.ambient", 0.8f, 0.2f, 0.2f);
+// 	shader.SetVec3("directLight.diffuse", 0.8f, 0.5f, 0.5f);
+// 	shader.SetVec3("directLight.specular", 1.0f, 1.0f, 1.0f);
+// 
+// 	shader.SetVec3("spotLight.position", camera.m_vec3Position);
+// 	shader.SetVec3("spotLight.direction", camera.m_vec3Front);
+// 	shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+// 	shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+// 
+// 	shader.SetVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
+// 	shader.SetVec3("spotLight.diffuse", 0.8f, 0.8f, 0.8f);
+// 	shader.SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+// 
+// 	shader.SetVec3("pointLight.position", lightPos);
+// 	shader.SetVec3("pointLight.ambient", 0.2f, 0.2f, 0.8f);
+// 	shader.SetVec3("pointLight.diffuse", 0.5f, 0.5f, 0.8f);
+// 	shader.SetVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
+// 	shader.SetFloat("pointLight.constant", 1.0f);
+// 	shader.SetFloat("pointLight.linear", 0.09f);
+// 	shader.SetFloat("pointLight.quadratic", 0.032f);
+// 
+// 
+// 	shader.SetFloat("material.shininess", 32.0f);
 
-	shader.SetVec3("viewPos", camera.m_vec3Position);
-
-	shader.SetVec3("directLight.direction", -0.2f, -1.0f, -0.3f);
-	shader.SetVec3("directLight.ambient", 0.8f, 0.2f, 0.2f);
-	shader.SetVec3("directLight.diffuse", 0.8f, 0.5f, 0.5f);
-	shader.SetVec3("directLight.specular", 1.0f, 1.0f, 1.0f);
-
-	shader.SetVec3("spotLight.position", camera.m_vec3Position);
-	shader.SetVec3("spotLight.direction", camera.m_vec3Front);
-	shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-	shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-
-	shader.SetVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
-	shader.SetVec3("spotLight.diffuse", 0.8f, 0.8f, 0.8f);
-	shader.SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-
-	shader.SetVec3("pointLight.position", lightPos);
-	shader.SetVec3("pointLight.ambient", 0.2f, 0.2f, 0.8f);
-	shader.SetVec3("pointLight.diffuse", 0.5f, 0.5f, 0.8f);
-	shader.SetVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
-	shader.SetFloat("pointLight.constant", 1.0f);
-	shader.SetFloat("pointLight.linear", 0.09f);
-	shader.SetFloat("pointLight.quadratic", 0.032f);
-
-	//shader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-	//shader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-	//shader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
-	shader.SetFloat("material.shininess", 32.0f);
-
-	Texture2D diffuseTexture("res/img/container2.png", GL_RGBA);
-	diffuseTexture.Use(GL_TEXTURE0);
-	shader.SetInt("light.diffuse", 0);
-	Texture2D::Clear();
-
-	Texture2D specularTexture("res/img/container2_specular.png", GL_RGBA);
-	specularTexture.Use(GL_TEXTURE1);
-	shader.SetInt("light.specular", 1);
-	Texture2D::Clear();
-
-	Shader lightshader = createShader("res/shader/light.vert", "res/shader/light.frag");
-	lightshader.Use();
-	lightshader.SetInt("sampler0", 0);
-
-	Texture2D lightTexture2D("res/img/light.jpg", GL_RGB, true);
-	lightTexture2D.Use();
-	Texture2D::Clear();
+// 	Texture2D diffuseTexture("res/img/container2.png", GL_RGBA);
+// 	diffuseTexture.Use(GL_TEXTURE0);
+// 	shader.SetInt("light.diffuse", 0);
+// 	Texture2D::Clear();
+// 
+// 	Texture2D specularTexture("res/img/container2_specular.png", GL_RGBA);
+// 	specularTexture.Use(GL_TEXTURE1);
+// 	shader.SetInt("light.specular", 1);
+// 	Texture2D::Clear();
+// 
+// 	Shader lightshader = createShader("res/shader/light.vert", "res/shader/light.frag");
+// 	lightshader.Use();
+// 	lightshader.SetInt("sampler0", 0);
+// 
+// 	Texture2D lightTexture2D("res/img/light.jpg", GL_RGB, true);
+// 	lightTexture2D.Use();
+// 	Texture2D::Clear();
 
 
 	float deltaTime = 0.0f;
@@ -258,38 +256,36 @@ int main() {
 		
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Texture2D::Clear();
+// 		Texture2D::Clear();
+// 
+// 		diffuseTexture.Use(GL_TEXTURE0);
+// 		specularTexture.Use(GL_TEXTURE1);
 
-		diffuseTexture.Use(GL_TEXTURE0);
-		specularTexture.Use(GL_TEXTURE1);
-
-		for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++)
-		{
-			drawObject(vao, shader);
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			shader.SetMat4("model", model);
-		}
+// 		for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++)
+// 		{
+// 			drawObject(vao, shader);
+// 			glm::mat4 model = glm::mat4(1.0f);
+// 			model = glm::translate(model, cubePositions[i]);
+// 			shader.SetMat4("model", model);
+// 		}
 		
 
-		lightTexture2D.Use(GL_TEXTURE0);
-		drawLight(lightVAO, lightshader);
+// 		lightTexture2D.Use(GL_TEXTURE0);
+// 		drawLight(lightVAO, lightshader);
 
 
 		// don't forget to enable shader before setting uniforms
 		ourShader.Use();
 
-		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.m_fZoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		ourShader.SetMat4("projection", projection);
-		ourShader.SetMat4("view", view);
+
+		setupVP(ourShader);
 
 		// render the loaded model
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
 		ourShader.SetMat4("model", model);
+
 		ourModel.Draw(ourShader);
 
 
@@ -460,9 +456,7 @@ void onSetScroll(GLFWwindow* window, double xoffset, double yoffset) {
 void drawObject(unsigned int vao, Shader shader) {
 	glBindVertexArray(vao);
 	shader.Use();
-	
-	shader.SetVec3("spotLight.position", camera.m_vec3Position);
-	shader.SetVec3("spotLight.direction", camera.m_vec3Front);
+
 
 	setupObjectMVP(shader);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
