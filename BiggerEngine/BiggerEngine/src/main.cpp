@@ -14,7 +14,7 @@
 #include "Camera.h"
 #include "Texture2D.h"
 #include "Model.h"
-
+#include "FrameBuffer.h"
 
 GLFWwindow* createWindow();
 void initOpenGL();
@@ -150,10 +150,10 @@ float lightVertices[] = {
 };
 
 float rectVertices[] = {
-		 0.5f,  0.5f, 0.0f,  1.0f, 1.0f,   // 右上
-		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f,   // 右下
-		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f,   // 左下
-		-0.5f,  0.5f, 0.0f,  0.0f, 1.0f    // 左上
+		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,   // 右上
+		 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,   // 右下
+		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,   // 左下
+		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f    // 左上
 };
 unsigned int indices[] = {
 	0, 1, 3, // first triangle
@@ -365,36 +365,8 @@ int main() {
 	rectShader.Use();
 	rectShader.SetInt("screenTexture", 0);
 
-	unsigned int fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-	// 生成纹理
-	unsigned int texColorBuffer;
-	glGenTextures(1, &texColorBuffer);
-	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// 将它附加到当前绑定的帧缓冲对象
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-
-
-	unsigned int rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	FrameBuffer famebuffer(SCR_WIDTH, SCR_HEIGHT);
 
 	
 
@@ -426,7 +398,7 @@ int main() {
 
 
 
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, famebuffer.m_iFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 
@@ -455,7 +427,7 @@ int main() {
 		glBindVertexArray(rectVAO);
 		glDisable(GL_DEPTH_TEST);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		glBindTexture(GL_TEXTURE_2D, famebuffer.m_iTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
