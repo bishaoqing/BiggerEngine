@@ -15,13 +15,14 @@
 #include "Texture2D.h"
 #include "Model.h"
 #include "FrameBuffer.h"
+#include "Time.h"
 
 GLFWwindow* createWindow();
 void initOpenGL();
 unsigned int createVAO();
 unsigned int createVBO(const float data[], const int size);
 Shader createShader(const char *vertPath, const char *fragPath);
-void processKeyBoard(GLFWwindow* window, float deltaTime);
+void processKeyBoard(GLFWwindow* window);
 void onSetFrameBuffer(GLFWwindow* window, int width, int height);
 void onSetCursorPos(GLFWwindow* window, double xpos, double ypos);
 void onSetScroll(GLFWwindow* window, double xoffset, double yoffset);
@@ -36,8 +37,7 @@ void setupVP(Shader shader);
 // settings
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
-float deltaTime = 0.0f;
-float lastTime = 0.0f;
+
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -255,9 +255,9 @@ int main() {
 // 	lightTexture2D.Use();
 // 	Texture2D::Clear();
 
-	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
-
-	Shader ourShader("res/shader/model.vert", "res/shader/model.frag");
+// 	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
+// 
+// 	Shader ourShader("res/shader/model.vert", "res/shader/model.frag");
 
 
 // 	float cubeVertices[] = {
@@ -344,36 +344,35 @@ int main() {
 
 	
 
-	// cube VAO
-	unsigned int rectVAO, rectVBO, rectEBO;
-	glGenVertexArrays(1, &rectVAO);
-	glGenBuffers(1, &rectVBO);
-	glGenBuffers(1, &rectEBO);
-	glBindVertexArray(rectVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rectVertices), &rectVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
-	glBindVertexArray(0);
-
-
-	Shader rectShader("res/shader/simple.vert", "res/shader/simple.frag");
-	rectShader.Use();
-	rectShader.SetInt("screenTexture", 0);
-
-
-	FrameBuffer famebuffer(SCR_WIDTH, SCR_HEIGHT);
+// 		unsigned int rectVAO, rectVBO, rectEBO;
+// 		glGenVertexArrays(1, &rectVAO);
+// 		glGenBuffers(1, &rectVBO);
+// 		glGenBuffers(1, &rectEBO);
+// 		glBindVertexArray(rectVAO);
+// 		glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
+// 		glBufferData(GL_ARRAY_BUFFER, sizeof(rectVertices), &rectVertices, GL_STATIC_DRAW);
+// 		glEnableVertexAttribArray(0);
+// 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+// 		glEnableVertexAttribArray(1);
+// 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+// 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectEBO);
+// 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+// 		glBindVertexArray(0);
+// 	
+// 	
+// 		Shader rectShader("res/shader/simple.vert", "res/shader/simple.frag");
+// 		rectShader.Use();
+// 		rectShader.SetInt("screenTexture", 0);
+// 	
+// 	
+// 		FrameBuffer famebuffer(SCR_WIDTH, SCR_HEIGHT);
 
 	
 
 	while (!glfwWindowShouldClose(window))
 	{
 		
-		processKeyBoard(window, deltaTime);
+		processKeyBoard(window);
 		
 
 //		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -398,45 +397,45 @@ int main() {
 
 
 
-		glBindFramebuffer(GL_FRAMEBUFFER, famebuffer.m_iFBO);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-
-		// don't forget to enable shader before setting uniforms
-		ourShader.Use();
-
-
-		setupVP(ourShader);
-
-		// render the loaded model
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-		ourShader.SetMat4("model", model);
-
-		ourModel.Draw(ourShader);
-
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT );
-
-		
-		
-		rectShader.Use();
-
-		glBindVertexArray(rectVAO);
-		glDisable(GL_DEPTH_TEST);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, famebuffer.m_iTexture);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+// 		glBindFramebuffer(GL_FRAMEBUFFER, famebuffer.m_iFBO);
+// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// 		glEnable(GL_DEPTH_TEST);
+// 
+// 		// don't forget to enable shader before setting uniforms
+// 		ourShader.Use();
+// 
+// 
+// 		setupVP(ourShader);
+// 
+// 		// render the loaded model
+// 		glm::mat4 model = glm::mat4(1.0f);
+// 		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+// 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+// 		ourShader.SetMat4("model", model);
+// 
+// 		ourModel.Draw(ourShader);
+// 
+// 
+// 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+// 		glClear(GL_COLOR_BUFFER_BIT );
+// 
+// 		
+// 		
+// 		rectShader.Use();
+// 
+// 		glBindVertexArray(rectVAO);
+// 		glDisable(GL_DEPTH_TEST);
+// 		glActiveTexture(GL_TEXTURE0);
+// 		glBindTexture(GL_TEXTURE_2D, famebuffer.m_iTexture);
+// 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+// 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
 		float currentTime = glfwGetTime();
-		deltaTime = currentTime - lastTime;
-		lastTime = currentTime;
+		Time::deltaTime = currentTime - Time::lastTime;
+		Time::lastTime = currentTime;
 	}
 	
 	glfwTerminate();
@@ -548,27 +547,27 @@ void setupLightMVP(Shader shader) {
 	
 }
 
-void processKeyBoard(GLFWwindow* window, float deltaTime) {
+void processKeyBoard(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+		camera.ProcessKeyboard(FORWARD);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
+		camera.ProcessKeyboard(BACKWARD);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		camera.ProcessKeyboard(LEFT, deltaTime);
+		camera.ProcessKeyboard(LEFT);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+		camera.ProcessKeyboard(RIGHT);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-		camera.ProcessKeyboard(DOWNWARD, deltaTime);
+		camera.ProcessKeyboard(DOWNWARD);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-		camera.ProcessKeyboard(UPWARD, deltaTime);
+		camera.ProcessKeyboard(UPWARD);
 	}
 }
 
