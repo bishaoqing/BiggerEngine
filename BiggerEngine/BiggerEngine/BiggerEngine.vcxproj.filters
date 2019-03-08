@@ -22,6 +22,9 @@
     <Filter Include="资源文件\mesh">
       <UniqueIdentifier>{9903d019-5362-4ded-9c1e-746f5d1a8420}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\img\skybox">
+      <UniqueIdentifier>{92072126-3b20-43a2-9fb2-0399cc6f7b12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Miscro.h">
@@ -52,6 +55,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Time.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SkyBox.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -139,6 +145,24 @@
     <Image Include="res\img\container.jpg">
       <Filter>资源文件\img</Filter>
     </Image>
+    <Image Include="res\img\skybox\back.jpg">
+      <Filter>资源文件\img\skybox</Filter>
+    </Image>
+    <Image Include="res\img\skybox\bottom.jpg">
+      <Filter>资源文件\img\skybox</Filter>
+    </Image>
+    <Image Include="res\img\skybox\front.jpg">
+      <Filter>资源文件\img\skybox</Filter>
+    </Image>
+    <Image Include="res\img\skybox\left.jpg">
+      <Filter>资源文件\img\skybox</Filter>
+    </Image>
+    <Image Include="res\img\skybox\right.jpg">
+      <Filter>资源文件\img\skybox</Filter>
+    </Image>
+    <Image Include="res\img\skybox\top.jpg">
+      <Filter>资源文件\img\skybox</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shader\uv.frag">
@@ -175,6 +199,24 @@
       <Filter>资源文件\shader</Filter>
     </None>
     <None Include="res\shader\simple.frag">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\skybox.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\skybox.frag">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\refract.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\refract.frag">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\reflect.frag">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\reflect.vert">
       <Filter>资源文件\shader</Filter>
     </None>
   </ItemGroup>

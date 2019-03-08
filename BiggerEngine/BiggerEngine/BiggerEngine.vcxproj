@@ -128,6 +128,7 @@
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Primitive.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\SkyBox.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\Texture2D.h" />
     <ClInclude Include="src\Time.h" />
@@ -144,6 +145,12 @@
     <Image Include="res\img\container2.png" />
     <Image Include="res\img\container2_specular.png" />
     <Image Include="res\img\light.jpg" />
+    <Image Include="res\img\skybox\back.jpg" />
+    <Image Include="res\img\skybox\bottom.jpg" />
+    <Image Include="res\img\skybox\front.jpg" />
+    <Image Include="res\img\skybox\left.jpg" />
+    <Image Include="res\img\skybox\right.jpg" />
+    <Image Include="res\img\skybox\top.jpg" />
     <Image Include="res\img\wall.jpg" />
     <Image Include="res\mesh\nanosuit\arm_dif.png" />
     <Image Include="res\mesh\nanosuit\arm_showroom_ddn.png" />
@@ -168,12 +175,18 @@
     <None Include="res\mesh\nanosuit\nanosuit.mtl" />
     <None Include="res\shader\light.frag" />
     <None Include="res\shader\light.vert" />
+    <None Include="res\shader\reflect.frag" />
+    <None Include="res\shader\reflect.vert" />
     <None Include="res\shader\model.frag" />
     <None Include="res\shader\model.vert" />
     <None Include="res\shader\object.frag" />
     <None Include="res\shader\object.vert" />
+    <None Include="res\shader\refract.vert" />
+    <None Include="res\shader\refract.frag" />
     <None Include="res\shader\simple.frag" />
     <None Include="res\shader\simple.vert" />
+    <None Include="res\shader\skybox.frag" />
+    <None Include="res\shader\skybox.vert" />
     <None Include="res\shader\uv.frag" />
     <None Include="res\shader\uv.vert" />
   </ItemGroup>

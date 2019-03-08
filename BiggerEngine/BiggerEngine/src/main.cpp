@@ -16,11 +16,10 @@
 #include "Model.h"
 #include "FrameBuffer.h"
 #include "Time.h"
+#include "SkyBox.h"
 
 GLFWwindow* createWindow();
 void initOpenGL();
-unsigned int createVAO();
-unsigned int createVBO(const float data[], const int size);
 Shader createShader(const char *vertPath, const char *fragPath);
 void processKeyBoard(GLFWwindow* window);
 void onSetFrameBuffer(GLFWwindow* window, int width, int height);
@@ -92,6 +91,51 @@ float vertices[] = {
 	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 };
 
+float cubeVertices[] = {
+	// positions          // texture Coords
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
 glm::vec3 cubePositions[] = {
 	glm::vec3(0.0f,  0.0f,  0.0f),
 	glm::vec3(2.0f,  5.0f, -15.0f),
@@ -160,6 +204,59 @@ unsigned int indices[] = {
 	1, 2, 3  // second triangle
 };
 
+float skyboxVertices[] = {
+	// positions          
+	-1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	-1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f
+};
+
+vector<std::string> faces {
+	"res/img/skybox/right.jpg",
+	"res/img/skybox/left.jpg",
+	"res/img/skybox/top.jpg",
+	"res/img/skybox/bottom.jpg",
+	"res/img/skybox/front.jpg",
+	"res/img/skybox/back.jpg"
+};
 
 int main() {
 	auto window = createWindow();
@@ -169,27 +266,32 @@ int main() {
 	}
 	initOpenGL();
 
+	SkyBox skybox(faces);
 
 
+	//Create cube vao
+	unsigned int skyboxvao;
+	glGenVertexArrays(1, &skyboxvao);
+	glBindVertexArray(skyboxvao);
 
-// 	//Create cube vao
-// 	unsigned int vao = createVAO();
-// 	unsigned int vbo = createVBO(vertices, sizeof(vertices));
-// 	
-// 	glBindVertexArray(vao);
-// 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-// 	
-// 	// VBO only save the data of vertices, without any attribute of vertex !
-// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-// 	glEnableVertexAttribArray(0);
-// 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-// 	glEnableVertexAttribArray(1);
-// 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-// 	glEnableVertexAttribArray(2);
-// 	
-// 	glBindVertexArray(0);
-// 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	unsigned int skyboxvbo;
+	glGenBuffers(1, &skyboxvbo);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxvbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
 	
+	// VBO only save the data of vertices, without any attribute of vertex !
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	
+	glBindVertexArray(0);
+	
+	Shader skyboxshader("res/shader/skybox.vert", "res/shader/skybox.frag");
+	skyboxshader.Use();
+	skyboxshader.SetInt("skybox", 0);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_iTexture);
+
+
 // 	// Create light vao
 // 	unsigned int lightVAO = createVAO();
 // 	unsigned int lightVBO = createVBO(lightVertices, sizeof(lightVertices));
@@ -260,65 +362,22 @@ int main() {
 // 	Shader ourShader("res/shader/model.vert", "res/shader/model.frag");
 
 
-// 	float cubeVertices[] = {
-// 		// positions          // texture Coords
-// 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-// 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-// 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-// 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-// 
-// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-// 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-// 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-// 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-// 		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-// 
-// 		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-// 		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-// 		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-// 
-// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-// 		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-// 		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-// 		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-// 
-// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-// 		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-// 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-// 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-// 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-// 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-// 
-// 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-// 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-// 		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-// 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-// 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-// 	};
-// 
-// 	// cube VAO
-// 	unsigned int cubeVAO, cubeVBO;
-// 	glGenVertexArrays(1, &cubeVAO);
-// 	glGenBuffers(1, &cubeVBO);
-// 	glBindVertexArray(cubeVAO);
-// 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-// 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
-// 	glEnableVertexAttribArray(0);
-// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-// 	glEnableVertexAttribArray(1);
-// 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-// 	glBindVertexArray(0);
-// 
-// 
+
+
+	// cube VAO
+	unsigned int cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindVertexArray(cubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBindVertexArray(0);
+
+
 // 	unsigned int cubeTexture;
 // 	glGenTextures(1, &cubeTexture);
 // 	glBindTexture(GL_TEXTURE_2D, cubeTexture);
@@ -336,10 +395,10 @@ int main() {
 // 		std::cout << "Load image error:" << std::endl;
 // 	}
 // 	stbi_image_free(data);
-// 	
-// 	Shader cubeShader("res/shader/simple.vert", "res/shader/simple.frag");
-// 	cubeShader.Use();
-// 	cubeShader.SetInt("screenTexture", 0);
+	
+	Shader cubeShader("res/shader/refract.vert", "res/shader/refract.frag");
+	cubeShader.Use();
+	cubeShader.SetInt("skybox", 0);
 	
 
 	
@@ -369,13 +428,52 @@ int main() {
 
 	
 
+
 	while (!glfwWindowShouldClose(window))
 	{
 		
 		processKeyBoard(window);
 		
 
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+
+		glm::mat4 view = glm::mat4 (1.0f);
+		view = camera.GetViewMatrix(); // remove translation from the view matrix
+
+		glm::mat4 projection = glm::mat4(1.0f);
+		projection = glm::perspective(glm::radians(camera.m_fZoom), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+
+
+		glBindVertexArray(cubeVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_iTexture);
+
+		cubeShader.Use();
+		cubeShader.SetMat4("model", model);
+		cubeShader.SetMat4("view", view);
+		cubeShader.SetMat4("projection", projection);
+		cubeShader.SetVec3("cameraPos", camera.m_vec3Position);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
+
+
+		// draw skybox as last
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+		skyboxshader.Use();
+		skyboxshader.SetMat4("view", glm::mat4(glm::mat3(view)));
+		skyboxshader.SetMat4("projection", projection);
+		
+		// skybox cube
+		glBindVertexArray(skyboxvao);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_iTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS); // set depth function back to default
+
 // 		Texture2D::Clear();
 // 
 // 		diffuseTexture.Use(GL_TEXTURE0);
@@ -482,31 +580,6 @@ void initOpenGL() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glEnable(GL_CULL_FACE);
 
-}
-
-unsigned int createVAO() {
-	// Create vao
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-
-	glBindVertexArray(0);
-
-	return vao;
-}
-
-unsigned int createVBO(const float data[], const int size) {
-	// Create vbo and bind vertex data
-	unsigned int vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-
-	
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	return vbo;
 }
 
 Shader createShader(const char *vertPath, const char *fragPath) {
