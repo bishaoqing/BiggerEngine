@@ -219,6 +219,15 @@
     <None Include="res\shader\reflect.vert">
       <Filter>资源文件\shader</Filter>
     </None>
+    <None Include="res\shader\explosion.geom">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\explosion.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\explosion.frag">
+      <Filter>资源文件\shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\mesh\nanosuit\LICENSE.txt">
