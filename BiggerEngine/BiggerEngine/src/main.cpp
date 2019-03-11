@@ -404,27 +404,27 @@ int main() {
 
 	
 
-// 		unsigned int rectVAO, rectVBO, rectEBO;
-// 		glGenVertexArrays(1, &rectVAO);
-// 		glGenBuffers(1, &rectVBO);
-// 		glGenBuffers(1, &rectEBO);
-// 		glBindVertexArray(rectVAO);
-// 		glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
-// 		glBufferData(GL_ARRAY_BUFFER, sizeof(rectVertices), &rectVertices, GL_STATIC_DRAW);
-// 		glEnableVertexAttribArray(0);
-// 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-// 		glEnableVertexAttribArray(1);
-// 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-// 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectEBO);
-// 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
-// 		glBindVertexArray(0);
-// 	
-// 	
-// 		Shader rectShader("res/shader/simple.vert", "res/shader/simple.frag");
-// 		rectShader.Use();
-// 		rectShader.SetInt("screenTexture", 0);
-// 	
-// 	
+		unsigned int rectVAO, rectVBO, rectEBO;
+		glGenVertexArrays(1, &rectVAO);
+		glGenBuffers(1, &rectVBO);
+		glGenBuffers(1, &rectEBO);
+		glBindVertexArray(rectVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(rectVertices), &rectVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+		glBindVertexArray(0);
+	
+	
+		Shader rectShader("res/shader/simple.vert", "res/shader/simple.frag");
+		rectShader.Use();
+		rectShader.SetInt("screenTexture", 0);
+	
+	
 // 		FrameBuffer famebuffer(SCR_WIDTH, SCR_HEIGHT);
 
 	
@@ -482,11 +482,55 @@ Shader instanceShader("res/shader/instance.vert", "res/shader/instance.frag");
     glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
 
 
+	unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	unsigned int tex;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tex);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, SCR_WIDTH, SCR_HEIGHT, GL_TRUE);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, tex, 0);
+
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "FrameBuffer error" << std::endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	// configure second post-processing framebuffer
+	unsigned int intermediateFBO;
+	glGenFramebuffers(1, &intermediateFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
+	// create a color attachment texture
+	unsigned int screenTexture;
+	glGenTextures(1, &screenTexture);
+	glBindTexture(GL_TEXTURE_2D, screenTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		
 		processKeyBoard(window);
 		
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glEnable(GL_DEPTH_TEST);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// configure transformation matrices
@@ -499,6 +543,14 @@ Shader instanceShader("res/shader/instance.vert", "res/shader/instance.frag");
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100); // 100 triangles of 6 vertices each
 		glBindVertexArray(0);
 		
+
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediateFBO);
+		glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+
+
 // 		modelShader.Use();
 // 		modelShader.SetMat4("projection", projection);
 // 		modelShader.SetMat4("view", view);
@@ -572,19 +624,19 @@ Shader instanceShader("res/shader/instance.vert", "res/shader/instance.frag");
 // 		ourModel.Draw(ourShader);
 // 
 // 
-// 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-// 		glClear(GL_COLOR_BUFFER_BIT );
-// 
-// 		
-// 		
-// 		rectShader.Use();
-// 
-// 		glBindVertexArray(rectVAO);
-// 		glDisable(GL_DEPTH_TEST);
-// 		glActiveTexture(GL_TEXTURE0);
-// 		glBindTexture(GL_TEXTURE_2D, famebuffer.m_iTexture);
-// 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-// 		glBindVertexArray(0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT );
+
+		
+		
+		rectShader.Use();
+
+		glBindVertexArray(rectVAO);
+		glDisable(GL_DEPTH_TEST);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, screenTexture);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 // 		// draw skybox as last
 // 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -617,6 +669,7 @@ GLFWwindow* createWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
@@ -650,6 +703,8 @@ void initOpenGL() {
 	glEnable(GL_DEPTH_TEST);
 	// PolygonMode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glEnable(GL_MULTISAMPLE);
 	//glEnable(GL_CULL_FACE);
 
 }
