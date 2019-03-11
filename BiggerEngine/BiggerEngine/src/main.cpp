@@ -266,30 +266,30 @@ int main() {
 	}
 	initOpenGL();
 
-	SkyBox skybox(faces);
-
-
-	//Create cube vao
-	unsigned int skyboxvao;
-	glGenVertexArrays(1, &skyboxvao);
-	glBindVertexArray(skyboxvao);
-
-	unsigned int skyboxvbo;
-	glGenBuffers(1, &skyboxvbo);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxvbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
-	
-	// VBO only save the data of vertices, without any attribute of vertex !
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	
-	glBindVertexArray(0);
-	
-	Shader skyboxshader("res/shader/skybox.vert", "res/shader/skybox.frag");
-	skyboxshader.Use();
-	skyboxshader.SetInt("skybox", 0);
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_iTexture);
+// 	SkyBox skybox(faces);
+// 
+// 
+// 	//Create cube vao
+// 	unsigned int skyboxvao;
+// 	glGenVertexArrays(1, &skyboxvao);
+// 	glBindVertexArray(skyboxvao);
+// 
+// 	unsigned int skyboxvbo;
+// 	glGenBuffers(1, &skyboxvbo);
+// 	glBindBuffer(GL_ARRAY_BUFFER, skyboxvbo);
+// 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+// 	
+// 	// VBO only save the data of vertices, without any attribute of vertex !
+// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+// 	glEnableVertexAttribArray(0);
+// 	
+// 	glBindVertexArray(0);
+// 	
+// 	Shader skyboxshader("res/shader/skybox.vert", "res/shader/skybox.frag");
+// 	skyboxshader.Use();
+// 	skyboxshader.SetInt("skybox", 0);
+// 
+// 	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_iTexture);
 
 
 // 	// Create light vao
@@ -357,11 +357,11 @@ int main() {
 // 	lightTexture2D.Use();
 // 	Texture2D::Clear();
 
-	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
-
-	Shader normalShader("res/shader/normal.vert", "res/shader/normal.frag", "res/shader/normal.geom");
-
-	Shader modelShader("res/shader/model.vert", "res/shader/model.frag");
+// 	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
+// 
+// 	Shader normalShader("res/shader/normal.vert", "res/shader/normal.frag", "res/shader/normal.geom");
+// 
+// 	Shader modelShader("res/shader/model.vert", "res/shader/model.frag");
 
 
 
@@ -428,6 +428,58 @@ int main() {
 // 		FrameBuffer famebuffer(SCR_WIDTH, SCR_HEIGHT);
 
 	
+Shader instanceShader("res/shader/instance.vert", "res/shader/instance.frag");
+
+	glm::vec2 translations[100];
+    int index = 0;
+    float offset = 0.1f;
+    for (int y = -10; y < 10; y += 2)
+    {
+        for (int x = -10; x < 10; x += 2)
+        {
+            glm::vec2 translation;
+            translation.x = (float)x / 10.0f + offset;
+            translation.y = (float)y / 10.0f + offset;
+            translations[index++] = translation;
+        }
+    }
+
+    // store instance data in an array buffer
+    // --------------------------------------
+    unsigned int instanceVBO;
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    float quadVertices[] = {
+        // positions     // colors
+        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+        -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+
+        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+         0.05f,  0.05f,  0.0f, 1.0f, 1.0f
+    };
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    // also set instance data
+	glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); // this attribute comes from a different vertex buffer
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
 
 
 	while (!glfwWindowShouldClose(window))
@@ -442,24 +494,27 @@ int main() {
 		glm::mat4 view = camera.GetViewMatrix();;
 		glm::mat4 model = glm::mat4(1.0f);
 
-
+		instanceShader.Use();
+		glBindVertexArray(quadVAO);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100); // 100 triangles of 6 vertices each
+		glBindVertexArray(0);
 		
-		modelShader.Use();
-		modelShader.SetMat4("projection", projection);
-		modelShader.SetMat4("view", view);
-		modelShader.SetMat4("model", model);
-
-		// draw model
-		ourModel.Draw(modelShader);
-
-
-		normalShader.Use();
-		normalShader.SetMat4("projection", projection);
-		normalShader.SetMat4("view", view);
-		normalShader.SetMat4("model", model);
-
-		// draw model
-		ourModel.Draw(normalShader);
+// 		modelShader.Use();
+// 		modelShader.SetMat4("projection", projection);
+// 		modelShader.SetMat4("view", view);
+// 		modelShader.SetMat4("model", model);
+// 
+// 		// draw model
+// 		ourModel.Draw(modelShader);
+// 
+// 
+// 		normalShader.Use();
+// 		normalShader.SetMat4("projection", projection);
+// 		normalShader.SetMat4("view", view);
+// 		normalShader.SetMat4("model", model);
+// 
+// 		// draw model
+// 		ourModel.Draw(normalShader);
 
 // 		glBindVertexArray(cubeVAO);
 // 		glActiveTexture(GL_TEXTURE0);
@@ -531,19 +586,19 @@ int main() {
 // 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 // 		glBindVertexArray(0);
 
-		// draw skybox as last
-		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-		skyboxshader.Use();
-		skyboxshader.SetMat4("view", glm::mat4(glm::mat3(view)));
-		skyboxshader.SetMat4("projection", projection);
-
-		// skybox cube
-		glBindVertexArray(skyboxvao);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_iTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		glDepthFunc(GL_LESS); // set depth function back to default
+// 		// draw skybox as last
+// 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+// 		skyboxshader.Use();
+// 		skyboxshader.SetMat4("view", glm::mat4(glm::mat3(view)));
+// 		skyboxshader.SetMat4("projection", projection);
+// 
+// 		// skybox cube
+// 		glBindVertexArray(skyboxvao);
+// 		glActiveTexture(GL_TEXTURE0);
+// 		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_iTexture);
+// 		glDrawArrays(GL_TRIANGLES, 0, 36);
+// 		glBindVertexArray(0);
+// 		glDepthFunc(GL_LESS); // set depth function back to default
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -237,6 +237,12 @@
     <None Include="res\shader\normal.frag">
       <Filter>资源文件\shader</Filter>
     </None>
+    <None Include="res\shader\instance.vert">
+      <Filter>资源文件\shader</Filter>
+    </None>
+    <None Include="res\shader\instance.frag">
+      <Filter>资源文件\shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\mesh\nanosuit\LICENSE.txt">
