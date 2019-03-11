@@ -359,8 +359,9 @@ int main() {
 
 	Model ourModel("res/mesh/nanosuit/nanosuit.obj");
 
-	Shader ourShader("res/shader/explosion.vert", "res/shader/explosion.frag", "res/shader/explosion.geom");
+	Shader normalShader("res/shader/normal.vert", "res/shader/normal.frag", "res/shader/normal.geom");
 
+	Shader modelShader("res/shader/model.vert", "res/shader/model.frag");
 
 
 
@@ -443,17 +444,22 @@ int main() {
 
 
 		
-		ourShader.Use();
-		ourShader.SetMat4("projection", projection);
-		ourShader.SetMat4("view", view);
-		ourShader.SetMat4("model", model);
-
-		// add time component to geometry shader in the form of a uniform
-		ourShader.SetFloat("time", glfwGetTime());
+		modelShader.Use();
+		modelShader.SetMat4("projection", projection);
+		modelShader.SetMat4("view", view);
+		modelShader.SetMat4("model", model);
 
 		// draw model
-		ourModel.Draw(ourShader);
+		ourModel.Draw(modelShader);
 
+
+		normalShader.Use();
+		normalShader.SetMat4("projection", projection);
+		normalShader.SetMat4("view", view);
+		normalShader.SetMat4("model", model);
+
+		// draw model
+		ourModel.Draw(normalShader);
 
 // 		glBindVertexArray(cubeVAO);
 // 		glActiveTexture(GL_TEXTURE0);

@@ -178,6 +178,9 @@
     <None Include="res\shader\explosion.vert" />
     <None Include="res\shader\light.frag" />
     <None Include="res\shader\light.vert" />
+    <None Include="res\shader\normal.frag" />
+    <None Include="res\shader\normal.geom" />
+    <None Include="res\shader\normal.vert" />
     <None Include="res\shader\reflect.frag" />
     <None Include="res\shader\reflect.vert" />
     <None Include="res\shader\model.frag" />
